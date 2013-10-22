@@ -6,7 +6,9 @@ public class ScoreMode : MonoBehaviour {
 	public enum State { Off = 0, On = 1 }
 	
 	public int tempo = 300;
+	public int height = 16;
 	public int loop = 16;
+	public int nAudioBuffers = 2;
 	
 	public StateMaterials[] stateMaterials;
 	public AudioClip[] tones;
@@ -22,17 +24,17 @@ public class ScoreMode : MonoBehaviour {
 		_metronome = new Metronome(HighResTime.UtcNow, 60 * HighResTime.SECOND2TICK / tempo, loop);
 		_metronome.Update();
 		_lastX = _metronome.x;
-		_cubeInfos = new CubeInfo[16, 16];
+		_cubeInfos = new CubeInfo[loop, height];
 		_cubeLayerMask = (1 << LayerMask.NameToLayer("CubeMatrix"));
-		_audioSources = new AudioSource[32];
+		_audioSources = new AudioSource[nAudioBuffers * height];
 		for (var i = 0; i < _audioSources.Length; i++)
 			_audioSources[i] = gameObject.AddComponent<AudioSource>();
 	}
 
 	void Start () {
 		_matrix = GetComponent<CubeMatrix>();
-		for (var y = 0; y < 16; y++) {
-			for (var x = 0; x < 16; x++) {
+		for (var y = 0; y < height; y++) {
+			for (var x = 0; x < loop; x++) {
 				var cube = _matrix[x, y];
 				var cubeInfo = new CubeInfo(){ state = State.Off, materials = stateMaterials[0], renderer = cube.GetComponent<Renderer>() };
 				_cubeInfos[x, y] = cubeInfo;
@@ -64,7 +66,7 @@ public class ScoreMode : MonoBehaviour {
 			return;
 		
 		var nextX = (_metronome.x + 1) % loop;
-		for (var y = 0; y < 16; y++) {
+		for (var y = 0; y < height; y++) {
 			UpdateMaterial(_lastX, y);
 			UpdateMaterial(_metronome.x, y);
 			var cubeInfo = _cubeInfos[nextX, y];
@@ -87,7 +89,7 @@ public class ScoreMode : MonoBehaviour {
 		cubeInfo.renderer.sharedMaterial = active ? cubeInfo.materials.matActive : cubeInfo.materials.matDefault;
 	}
 	void PlayScheduled(int x, int y, double scheduledTime) {
-		var audio = _audioSources[y + (x % 2)];
+		var audio = _audioSources[y + (x % nAudioBuffers) * height];
 		audio.clip = tones[y];
 		audio.PlayScheduled(scheduledTime);
 	}
