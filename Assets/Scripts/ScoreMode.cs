@@ -4,26 +4,25 @@ using TouchScript.Gestures;
 
 public class ScoreMode : MonoBehaviour {
 	public enum State { Off = 0, On = 1 }
-	public int tempo = 75;
+	
+	public int tempo = 300;
 	public int loop = 16;
 	
 	public StateMaterials[] stateMaterials;
 	public AudioClip[] tones;
 	
 	private CubeMatrix _matrix;
-	private System.DateTime _standardTime;
-	private double _step2mills, _mills2step;
-	private int _lastX, _currX;
+	private Metronome _metronome;
+	private int _lastX;
 	private CubeInfo[,] _cubeInfos;
 	private int _cubeLayerMask;
 	private AudioSource[] _audioSources;
 	
 	void Awake() {
-		_standardTime = HighResTime.UtcNow;
-		_step2mills = 60000.0 / (4 * tempo);
-		_mills2step = 1.0 / _step2mills;
+		_metronome = new Metronome(HighResTime.UtcNow, 60 * HighResTime.SECOND2TICK / tempo, loop);
+		_metronome.Update();
+		_lastX = _metronome.x;
 		_cubeInfos = new CubeInfo[16, 16];
-		_lastX = _currX = GetCurrX();
 		_cubeLayerMask = (1 << LayerMask.NameToLayer("CubeMatrix"));
 		_audioSources = new AudioSource[32];
 		for (var i = 0; i < _audioSources.Length; i++)
@@ -53,7 +52,6 @@ public class ScoreMode : MonoBehaviour {
 			if (Physics.Raycast(Camera.main.ScreenPointToRay(screenPos), out hit, _cubeLayerMask)) {
 				var cube = hit.transform.gameObject;
 				var index = _matrix[cube];
-				Debug.Log(index);
 				FlipState(index.x, index.y);
 				UpdateMaterial(index.x, index.y);
 			}
@@ -61,16 +59,20 @@ public class ScoreMode : MonoBehaviour {
 	}
 
 	void UpdateCubeMatrix () {
-		_currX = GetCurrX ();
-		if (_currX == _lastX)
+		_metronome.Update();
+		if (_metronome.x == _lastX)
 			return;
 		
+		var nextX = (_metronome.x + 1) % loop;
 		for (var y = 0; y < 16; y++) {
 			UpdateMaterial(_lastX, y);
-			UpdateMaterial(_currX, y);
+			UpdateMaterial(_metronome.x, y);
+			var cubeInfo = _cubeInfos[nextX, y];
+			if (cubeInfo.state == State.On)
+				PlayScheduled(nextX, y, _metronome.Step2DspTime(_metronome.steps + 1));
 		}
 		
-		_lastX = _currX;
+		_lastX = _metronome.x;
 	}
 	
 	void FlipState(int x, int y) {
@@ -81,14 +83,13 @@ public class ScoreMode : MonoBehaviour {
 	}
 	void UpdateMaterial(int x, int y) {
 		var cubeInfo = _cubeInfos[x, y];
-		var active = (x == _currX);
+		var active = (x == _metronome.x);
 		cubeInfo.renderer.sharedMaterial = active ? cubeInfo.materials.matActive : cubeInfo.materials.matDefault;
 	}
-
-	int GetCurrX () {
-		var ticks = HighResTime.UtcNow - _standardTime;
-		var steps = ticks.TotalMilliseconds * _mills2step;
-		return (int)(steps % loop);
+	void PlayScheduled(int x, int y, double scheduledTime) {
+		var audio = _audioSources[y + (x % 2)];
+		audio.clip = tones[y];
+		audio.PlayScheduled(scheduledTime);
 	}
 	
 	[System.Serializable]
@@ -101,5 +102,43 @@ public class ScoreMode : MonoBehaviour {
 		public State state;
 		public StateMaterials materials;
 		public Renderer renderer;
+	}
+	
+	public class Metronome {
+		public long ticks;
+		public long steps;
+		public int x;
+		public double dspTime;
+		
+		public System.DateTime standardTime;
+		public long step2tick;
+		public int loop;
+		
+		public Metronome(System.DateTime standardTime, long step2tick, int loop) {
+			this.standardTime = standardTime;
+			this.step2tick = step2tick;
+			this.loop = loop;
+		}
+		
+		public void Update() {
+			ticks = (HighResTime.UtcNow - standardTime).Ticks;
+			steps = Tick2Step(ticks);
+			x = Step2X(steps);
+			dspTime = AudioSettings.dspTime;
+		}
+		
+		public long Tick2Step(long ticks) {
+			return ticks / step2tick;
+		}
+		public long Step2Tick(long steps) {
+			return steps * step2tick;
+		}
+		public int Step2X(long steps) {
+			return (int)(steps % loop);
+		}
+		public double Step2DspTime(long steps) {
+			var nextTick = Step2Tick(steps);
+			return dspTime + (nextTick - ticks) * HighResTime.TICK2SECOND;
+		}
 	}
 }

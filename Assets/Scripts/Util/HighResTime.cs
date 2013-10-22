@@ -2,6 +2,9 @@ using System;
 using System.Diagnostics;
 
 public static class HighResTime {
+	public const long SECOND2TICK = 10000000L;
+	public const double TICK2SECOND = 1.0 / SECOND2TICK;
+	
     private static DateTime _startTime;
     private static Stopwatch _stopWatch = null;
     private static TimeSpan _maxIdle = TimeSpan.FromSeconds(10);
