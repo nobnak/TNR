@@ -15239,22 +15239,22 @@ MonoBehaviour:
   - matDefault: {fileID: 2100000, guid: 30a1f1f4155ff4e65bf10a673943aec0, type: 2}
     matActive: {fileID: 2100000, guid: e98c9e33320dc4d5ebf422ded80b8496, type: 2}
   tones:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: 7faded0c7bf234dd8bd1b1e9b6129c5a, type: 3}
+  - {fileID: 8300000, guid: a46a46b85cf214cde913558ea262ae4a, type: 3}
+  - {fileID: 8300000, guid: cc81f5e6082a54aebba0a55ed93f3e1f, type: 3}
+  - {fileID: 8300000, guid: 7faded0c7bf234dd8bd1b1e9b6129c5a, type: 3}
+  - {fileID: 8300000, guid: a46a46b85cf214cde913558ea262ae4a, type: 3}
+  - {fileID: 8300000, guid: cc81f5e6082a54aebba0a55ed93f3e1f, type: 3}
+  - {fileID: 8300000, guid: 7faded0c7bf234dd8bd1b1e9b6129c5a, type: 3}
+  - {fileID: 8300000, guid: a46a46b85cf214cde913558ea262ae4a, type: 3}
+  - {fileID: 8300000, guid: cc81f5e6082a54aebba0a55ed93f3e1f, type: 3}
+  - {fileID: 8300000, guid: 7faded0c7bf234dd8bd1b1e9b6129c5a, type: 3}
+  - {fileID: 8300000, guid: a46a46b85cf214cde913558ea262ae4a, type: 3}
+  - {fileID: 8300000, guid: cc81f5e6082a54aebba0a55ed93f3e1f, type: 3}
+  - {fileID: 8300000, guid: 7faded0c7bf234dd8bd1b1e9b6129c5a, type: 3}
+  - {fileID: 8300000, guid: a46a46b85cf214cde913558ea262ae4a, type: 3}
+  - {fileID: 8300000, guid: cc81f5e6082a54aebba0a55ed93f3e1f, type: 3}
+  - {fileID: 8300000, guid: 7faded0c7bf234dd8bd1b1e9b6129c5a, type: 3}
 --- !u!114 &1820225763
 MonoBehaviour:
   m_ObjectHideFlags: 0
